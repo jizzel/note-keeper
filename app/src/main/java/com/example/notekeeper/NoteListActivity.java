@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -18,6 +17,8 @@ import java.util.List;
 
 public class NoteListActivity extends AppCompatActivity {
 
+    private ArrayAdapter<NoteInfo> mAdapterNotes;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,27 +30,32 @@ public class NoteListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                startActivity(new Intent(NoteListActivity.this, NoteActivity.class));
             }
         });
 
         initializeDisplayContent();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mAdapterNotes.notifyDataSetChanged();
+    }
+
     private void initializeDisplayContent() {
         final ListView listNotes = findViewById(R.id.list_note);
         final List<NoteInfo> notes = DataManager.getInstance().getNotes();
-        ArrayAdapter<NoteInfo> adapterNotes = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, notes);
+        mAdapterNotes = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, notes);
 
-        listNotes.setAdapter(adapterNotes);
+        listNotes.setAdapter(mAdapterNotes);
 
         listNotes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                  Intent intent = new Intent(NoteListActivity.this, NoteActivity.class);
-                 NoteInfo note = (NoteInfo) listNotes.getItemAtPosition(i);
-                 intent.putExtra(NoteActivity.NOTE_INFO, note);
+//                 NoteInfo note = (NoteInfo) listNotes.getItemAtPosition(i);
+                 intent.putExtra(NoteActivity.NOTE_POSITION, i);
                  startActivity(intent);
             }
         });
