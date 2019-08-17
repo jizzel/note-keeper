@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -19,6 +20,7 @@ public class NoteActivity extends AppCompatActivity {
     public static final String ORIGINAL_NOTE_COURSE_ID = "com.example.notekeeper.ORIGINAL_NOTE_COURSE_ID";
     public static final String ORIGINAL_NOTE_TITLE = "com.example.notekeeper.ORIGINAL_NOTE_TITLE";
     public static final String ORIGINAL_NOTE_TEXT = "com.example.notekeeper.ORIGINAL_NOTE_TEXT";
+    private int mCurrentPosition;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -31,9 +33,9 @@ public class NoteActivity extends AppCompatActivity {
     public static final int POSITION_NOT_SET = -1;
     private NoteInfo mNote;
     private boolean mIsNewNote;
-    private Spinner spinnerCourses;
-    private EditText textNoteTitle;
-    private EditText textNoteText;
+    private Spinner mSpinnerCourses;
+    private EditText mTextNoteTitle;
+    private EditText mTextNoteText;
     private int mNotePosition;
     private boolean mIsCancelling;
     private String mOriginalNoteCourseId;
@@ -47,12 +49,12 @@ public class NoteActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        spinnerCourses = findViewById(R.id.spinner_courses);
+        mSpinnerCourses = findViewById(R.id.spinner_courses);
 
         List<CourseInfo> courses = DataManager.getInstance().getCourses();
         ArrayAdapter<CourseInfo> adapterCourses = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, courses);
         adapterCourses.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCourses.setAdapter(adapterCourses);
+        mSpinnerCourses.setAdapter(adapterCourses);
 
         readDisplayStateValues();
         if(savedInstanceState == null) {
@@ -61,11 +63,11 @@ public class NoteActivity extends AppCompatActivity {
             restoreOriginalNoteValues(savedInstanceState);
         }
 
-        textNoteTitle = findViewById(R.id.text_note_title);
-        textNoteText = findViewById(R.id.text_note_text);
+        mTextNoteTitle = findViewById(R.id.text_note_title);
+        mTextNoteText = findViewById(R.id.text_note_text);
 
         if(!mIsNewNote)
-            displayNote(spinnerCourses, textNoteText, textNoteTitle);
+            displayNote(mSpinnerCourses, mTextNoteText, mTextNoteTitle);
     }
 
     private void restoreOriginalNoteValues(Bundle savedInstanceState) {
@@ -93,12 +95,12 @@ public class NoteActivity extends AppCompatActivity {
 
     private void readDisplayStateValues() {
         Intent intent = getIntent();
-        int position = intent.getIntExtra(NOTE_POSITION, POSITION_NOT_SET);
-        mIsNewNote = position == POSITION_NOT_SET;
+        mCurrentPosition = intent.getIntExtra(NOTE_POSITION, POSITION_NOT_SET);
+        mIsNewNote = mCurrentPosition == POSITION_NOT_SET;
         if(mIsNewNote){
             createNewNote();
         } else {
-            mNote = DataManager.getInstance().getNotes().get(position);
+            mNote = DataManager.getInstance().getNotes().get(mCurrentPosition);
         }
     }
 
@@ -129,9 +131,29 @@ public class NoteActivity extends AppCompatActivity {
         }else if (id == R.id.action_cancel){
             mIsCancelling = true;
             finish();
+        }else if (id == R.id.action_next){
+            moveNext();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.action_next);
+        int lastNoteIndex = DataManager.getInstance().getNotes().size() - 1;
+        menuItem.setEnabled(mCurrentPosition < lastNoteIndex);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private void moveNext() {
+        saveNote();
+        ++mCurrentPosition;
+        Log.d("Position", ""+ mCurrentPosition );
+        mNote = DataManager.getInstance().getNotes().get(mNotePosition);
+        saveOriginalNoteValues();
+        displayNote(mSpinnerCourses,mTextNoteTitle,mTextNoteText);
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -154,15 +176,15 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void saveNote() {
-        mNote.setCourse((CourseInfo) spinnerCourses.getSelectedItem());
-        mNote.setTitle(textNoteTitle.getText().toString());
-        mNote.setText(textNoteText.getText().toString());
+        mNote.setCourse((CourseInfo) mSpinnerCourses.getSelectedItem());
+        mNote.setTitle(mTextNoteTitle.getText().toString());
+        mNote.setText(mTextNoteText.getText().toString());
     }
 
     private void sendEmail() {
-        CourseInfo course = (CourseInfo) spinnerCourses.getSelectedItem();
-        String subject = textNoteTitle.getText().toString();
-        String text = "Check what I learned in the Pluralsight course \""+ course.getTitle() + "\"n " + textNoteText.getText().toString();
+        CourseInfo course = (CourseInfo) mSpinnerCourses.getSelectedItem();
+        String subject = mTextNoteTitle.getText().toString();
+        String text = "Check what I learned in the Pluralsight course \""+ course.getTitle() + "\"n " + mTextNoteText.getText().toString();
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("message/rfc2822");
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
