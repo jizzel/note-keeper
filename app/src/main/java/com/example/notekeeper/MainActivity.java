@@ -29,7 +29,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private NoteRecyclerAdapter mNoteRecyclerAdapter;
-    private RecyclerView mRrecyclerItems;
+    private RecyclerView mRecyclerItems;
     private LinearLayoutManager mNotesLayoutManager;
     private CourseRecyclerAdapter mCourseRecyclerAdapter;
     private GridLayoutManager mCoursesLayoutManager;
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initializeDisplayContent() {
-        mRrecyclerItems = findViewById(R.id.list_items);
+        mRecyclerItems = findViewById(R.id.list_items);
         mNotesLayoutManager = new LinearLayoutManager(this);
         mCoursesLayoutManager = new GridLayoutManager(this, 2);
 
@@ -80,8 +80,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void displayNotes() {
-        mRrecyclerItems.setLayoutManager(mNotesLayoutManager);
-        mRrecyclerItems.setAdapter(mNoteRecyclerAdapter);
+        mRecyclerItems.setLayoutManager(mNotesLayoutManager);
+        mRecyclerItems.setAdapter(mNoteRecyclerAdapter);
 
         selectNavigationMenuItem(R.id.nav_notes);
     }
@@ -93,8 +93,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void displayCourses() {
-        mRrecyclerItems.setLayoutManager(mCoursesLayoutManager);
-        mRrecyclerItems.setAdapter(mCourseRecyclerAdapter);
+        mRecyclerItems.setLayoutManager(mCoursesLayoutManager);
+        mRecyclerItems.setAdapter(mCourseRecyclerAdapter);
         
         selectNavigationMenuItem(R.id.nav_courses);
         
