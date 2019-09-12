@@ -58,7 +58,7 @@ public class CourseRecyclerAdapter extends RecyclerView.Adapter<CourseRecyclerAd
                 @Override
                 public void onClick(View view) {
 //                    Intent intent = new Intent(mContext, NoteActivity.class);
-//                    intent.putExtra(NoteActivity.NOTE_POSITION, mCurrentPosition);
+//                    intent.putExtra(NoteActivity.NOTE_ID, mId);
 //                    mContext.startActivity(intent);
                     Snackbar.make(view,mCourses.get(mCurrentPosition).getTitle(),Snackbar.LENGTH_LONG).show();
                 }
